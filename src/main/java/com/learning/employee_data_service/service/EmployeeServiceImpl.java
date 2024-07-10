@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.learning.employee_data_service.exception.EmployeeNotFoundException;
 import com.learning.employee_data_service.model.Employee;
 import com.learning.employee_data_service.repository.EmployeeRepository;
 
@@ -19,7 +20,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public Employee findById(Long id) {
-        return employeeRepository.findById(id).orElse(null);
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee Not found with the id: " + id));
     }
 
     public Employee save(Employee employee) {
@@ -27,6 +29,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public void deleteById(Long id) {
+        if (!employeeRepository.existsById(id)) {
+            throw new EmployeeNotFoundException("Employee not found with the id: " + id);
+        }
         employeeRepository.deleteById(id);
     }
 

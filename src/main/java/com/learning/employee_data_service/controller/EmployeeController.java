@@ -3,6 +3,8 @@ package com.learning.employee_data_service.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.learning.employee_data_service.exception.EmployeeNotFoundException;
 import com.learning.employee_data_service.model.Employee;
 import com.learning.employee_data_service.service.EmployeeService;
 
@@ -28,8 +31,9 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public Employee getEmployeeById(@PathVariable Long id) {
-        return employeeService.findById(id);
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
+        Employee employee = employeeService.findById(id);
+        return new ResponseEntity<>(employee, HttpStatus.OK);
     }
 
     @PostMapping
@@ -38,20 +42,20 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public Employee updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
+    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
         Employee existingEmployee = employeeService.findById(id);
-        if (existingEmployee != null) {
-            existingEmployee.setName(employee.getName());
-            existingEmployee.setRole(employee.getRole());
-            return employeeService.save(existingEmployee);
-        }
-        return null;
+        existingEmployee.setName(employee.getName());
+        existingEmployee.setRole(employee.getRole());
+        Employee updatedEmployee = employeeService.save(existingEmployee);
+
+        return new ResponseEntity<>(updatedEmployee, HttpStatus.OK);
 
     }
 
     @DeleteMapping("/{id}")
-    public void deleteEmployeeById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteEmployeeById(@PathVariable Long id) {
         employeeService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }
